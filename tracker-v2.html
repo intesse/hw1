@@ -1,0 +1,778 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f6fb">
+  <title>Учебный трекер</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f6fb;
+      --surface: #ffffff;
+      --text: #202638;
+      --muted: #687187;
+      --line: #e3e7f0;
+      --accent: #4258c5;
+      --accent-dark: #3045ad;
+      --accent-soft: #edf0ff;
+      --success: #19734a;
+      --success-soft: #e9f7ef;
+      --danger: #b42335;
+      --danger-soft: #fff0f1;
+      --shadow: 0 12px 34px rgba(35, 48, 88, .08);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    button, input { font: inherit; }
+
+    .page {
+      width: min(100% - 32px, 760px);
+      margin: 0 auto;
+      padding: 42px 0 56px;
+    }
+
+    .page-header { margin-bottom: 24px; }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: clamp(1.7rem, 5vw, 2.2rem);
+      line-height: 1.15;
+      letter-spacing: -.035em;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: .98rem;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 22px;
+      margin-bottom: 18px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .stat {
+      min-width: 0;
+      padding: 15px;
+      background: #f8f9fd;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+    }
+
+    .stat-label {
+      display: block;
+      color: var(--muted);
+      font-size: .83rem;
+      margin-bottom: 5px;
+    }
+
+    .stat-value {
+      display: block;
+      font-size: clamp(1.35rem, 5vw, 1.8rem);
+      font-weight: 750;
+      line-height: 1.2;
+      letter-spacing: -.03em;
+      overflow-wrap: anywhere;
+    }
+
+    .progress-track {
+      height: 9px;
+      margin-top: 16px;
+      overflow: hidden;
+      background: #e9ecf5;
+      border-radius: 999px;
+    }
+
+    .progress-fill {
+      width: 0;
+      height: 100%;
+      background: var(--accent);
+      border-radius: inherit;
+      transition: width .2s ease;
+    }
+
+    .section-title {
+      margin: 0 0 16px;
+      font-size: 1.12rem;
+      letter-spacing: -.015em;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 145px auto;
+      align-items: end;
+      gap: 12px;
+    }
+
+    .field { min-width: 0; }
+
+    label.field-label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: .9rem;
+      font-weight: 650;
+    }
+
+    input[type="text"], input[type="number"] {
+      display: block;
+      width: 100%;
+      min-height: 46px;
+      padding: 10px 12px;
+      color: var(--text);
+      background: #fff;
+      border: 1px solid #cbd2e1;
+      border-radius: 10px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(66, 88, 197, .14);
+    }
+
+    input[aria-invalid="true"] { border-color: var(--danger); }
+
+    .field-error {
+      min-height: 20px;
+      margin: 5px 0 0;
+      color: var(--danger);
+      font-size: .8rem;
+    }
+
+    .primary-button, .delete-button, .filter-button {
+      min-height: 42px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background .15s ease, border-color .15s ease, transform .15s ease;
+    }
+
+    .primary-button {
+      min-height: 46px;
+      padding: 0 17px;
+      color: #fff;
+      background: var(--accent);
+      border: 1px solid var(--accent);
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .primary-button:hover { background: var(--accent-dark); }
+
+    button:focus-visible {
+      outline: 3px solid rgba(66, 88, 197, .3);
+      outline-offset: 2px;
+    }
+
+    .storage-message {
+      margin: 13px 0 0;
+      padding: 10px 12px;
+      color: #78520c;
+      background: #fff7e5;
+      border: 1px solid #f0dfb6;
+      border-radius: 10px;
+      font-size: .86rem;
+    }
+
+    .list-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .list-header .section-title { margin: 0; }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .filter-button {
+      min-height: 36px;
+      padding: 6px 12px;
+      color: #4f5870;
+      background: #fff;
+      border: 1px solid var(--line);
+      font-size: .88rem;
+    }
+
+    .filter-button:hover { border-color: #aeb8d0; }
+
+    .filter-button[aria-pressed="true"] {
+      color: var(--accent-dark);
+      background: var(--accent-soft);
+      border-color: #cbd2ff;
+      font-weight: 700;
+    }
+
+    .task-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .task {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      padding: 13px 14px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: #fff;
+    }
+
+    .task-check {
+      width: 20px;
+      height: 20px;
+      flex: 0 0 auto;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .task-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .task-title {
+      display: block;
+      font-weight: 650;
+      overflow-wrap: anywhere;
+    }
+
+    .task-title.is-done {
+      color: var(--muted);
+      text-decoration: line-through;
+    }
+
+    .task-hours {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: .85rem;
+    }
+
+    .delete-button {
+      flex: 0 0 auto;
+      min-height: 36px;
+      padding: 5px 10px;
+      color: var(--danger);
+      background: #fff;
+      border: 1px solid #f0cbd0;
+      font-size: .85rem;
+    }
+
+    .delete-button:hover {
+      background: var(--danger-soft);
+      border-color: #e7aeb6;
+    }
+
+    .empty-state {
+      margin: 0;
+      padding: 24px 14px;
+      color: var(--muted);
+      text-align: center;
+      border: 1px dashed #cbd2e1;
+      border-radius: 13px;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 600px) {
+      .page {
+        width: min(100% - 24px, 760px);
+        padding-top: 26px;
+      }
+
+      .panel {
+        padding: 17px;
+        border-radius: 15px;
+      }
+
+      .stats { gap: 8px; }
+
+      .stat { padding: 11px 9px; }
+
+      .stat-label { font-size: .76rem; }
+
+      .form-grid {
+        grid-template-columns: minmax(0, 1fr) minmax(100px,  .7fr);
+        gap: 8px 10px;
+      }
+
+      .form-grid .field:first-child { grid-column: 1 / -1; }
+
+      .primary-button {
+        grid-column: 1 / -1;
+        width: 100%;
+      }
+
+      .list-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .filters { width: 100%; }
+
+      .filter-button { flex: 1 1 auto; }
+    }
+
+    @media (max-width: 380px) {
+      .stats { grid-template-columns: 1fr; }
+      .stat {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .stat-label { margin: 0; }
+      .stat-value { font-size: 1.35rem; }
+      .task { gap: 9px; padding: 11px; }
+      .delete-button { padding-inline: 8px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="page-header">
+      <h1>Учебный трекер</h1>
+      <p class="subtitle">Планируйте учебные задачи и следите за прогрессом за неделю.</p>
+    </header>
+
+    <section class="panel" aria-label="Итоги выполнения">
+      <div class="stats">
+        <div class="stat">
+          <span class="stat-label">Всего часов</span>
+          <strong class="stat-value" id="total-hours">8 ч</strong>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Выполнено часов</span>
+          <strong class="stat-value" id="completed-hours">2 ч</strong>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Прогресс</span>
+          <strong class="stat-value" id="progress-value">25%</strong>
+        </div>
+      </div>
+      <div
+        class="progress-track"
+        id="progress-track"
+        role="progressbar"
+        aria-label="Общий прогресс выполнения"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="25"
+      >
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="add-heading">
+      <h2 class="section-title" id="add-heading">Добавить задачу</h2>
+      <form id="task-form" novalidate>
+        <div class="form-grid">
+          <div class="field">
+            <label class="field-label" for="task-title">Название задачи</label>
+            <input
+              id="task-title"
+              name="title"
+              type="text"
+              placeholder="Например, подготовить конспект"
+              autocomplete="off"
+              aria-describedby="title-error"
+              required
+            >
+            <p class="field-error" id="title-error" aria-live="polite"></p>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="task-hours">Часы (0,5–24)</label>
+            <input
+              id="task-hours"
+              name="hours"
+              type="number"
+              min="0.5"
+              max="24"
+              step="0.5"
+              placeholder="2"
+              inputmode="decimal"
+              aria-describedby="hours-error"
+              required
+            >
+            <p class="field-error" id="hours-error" aria-live="polite"></p>
+          </div>
+
+          <button class="primary-button" type="submit">Добавить задачу</button>
+        </div>
+      </form>
+      <p class="storage-message" id="storage-message" role="status" hidden></p>
+    </section>
+
+    <section class="panel" aria-labelledby="tasks-heading">
+      <div class="list-header">
+        <h2 class="section-title" id="tasks-heading">Мои задачи</h2>
+        <div class="filters" role="group" aria-label="Фильтр задач">
+          <button class="filter-button" type="button" data-filter="all" aria-pressed="true">Все</button>
+          <button class="filter-button" type="button" data-filter="active" aria-pressed="false">Активные</button>
+          <button class="filter-button" type="button" data-filter="completed" aria-pressed="false">Готовые</button>
+        </div>
+      </div>
+      <div class="task-list" id="task-list" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const STORAGE_KEY = "tracker-v2-tasks";
+
+      const starterTasks = [
+        { id: 1, title: "Чтение", hours: 2, done: true },
+        { id: 2, title: "Практика", hours: 4, done: false },
+        { id: 3, title: "Повторение", hours: 2, done: false }
+      ];
+
+      let tasks = starterTasks.map(task => ({ ...task }));
+      let currentFilter = "all";
+      let storageAvailable = false;
+
+      const form = document.getElementById("task-form");
+      const titleInput = document.getElementById("task-title");
+      const hoursInput = document.getElementById("task-hours");
+      const titleError = document.getElementById("title-error");
+      const hoursError = document.getElementById("hours-error");
+      const taskList = document.getElementById("task-list");
+      const totalHoursElement = document.getElementById("total-hours");
+      const completedHoursElement = document.getElementById("completed-hours");
+      const progressValueElement = document.getElementById("progress-value");
+      const progressTrack = document.getElementById("progress-track");
+      const progressFill = document.getElementById("progress-fill");
+      const storageMessage = document.getElementById("storage-message");
+      const filterButtons = document.querySelectorAll("[data-filter]");
+
+      function cloneStarterTasks() {
+        return starterTasks.map(task => ({ ...task }));
+      }
+
+      function showStorageMessage(message) {
+        storageMessage.textContent = message;
+        storageMessage.hidden = false;
+      }
+
+      function hideStorageMessage() {
+        storageMessage.textContent = "";
+        storageMessage.hidden = true;
+      }
+
+      function isValidTaskArray(value) {
+        return Array.isArray(value) && value.every(task =>
+          task &&
+          (typeof task.id === "number" || typeof task.id === "string") &&
+          typeof task.title === "string" &&
+          task.title.trim().length > 0 &&
+          typeof task.hours === "number" &&
+          Number.isFinite(task.hours) &&
+          task.hours >= 0.5 &&
+          task.hours <= 24 &&
+          Number.isInteger(task.hours * 2) &&
+          typeof task.done === "boolean"
+        );
+      }
+
+      function loadTasks() {
+        try {
+          const saved = window.localStorage.getItem(STORAGE_KEY);
+          storageAvailable = true;
+
+          if (saved !== null) {
+            const parsed = JSON.parse(saved);
+            if (isValidTaskArray(parsed)) {
+              tasks = parsed;
+            } else {
+              tasks = cloneStarterTasks();
+              showStorageMessage("Сохранённые данные имеют неверный формат. Загружен стартовый пример; изменения будут сохраняться локально.");
+            }
+          } else {
+            tasks = cloneStarterTasks();
+            saveTasks();
+          }
+        } catch (error) {
+          storageAvailable = false;
+          tasks = cloneStarterTasks();
+          showStorageMessage("Локальное сохранение недоступно. Трекер продолжает работать, но данные сохраняются только до закрытия или перезагрузки страницы.");
+        }
+      }
+
+      function saveTasks() {
+        if (!storageAvailable) return;
+
+        try {
+          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+        } catch (error) {
+          storageAvailable = false;
+          showStorageMessage("Не удалось сохранить данные в браузере. Трекер продолжает работать в памяти; после перезагрузки изменения могут не сохраниться.");
+        }
+      }
+
+      function formatHours(value) {
+        return Number.isInteger(value)
+          ? String(value)
+          : String(value).replace(".", ",");
+      }
+
+      function getTotals() {
+        const totalHours = tasks.reduce((sum, task) => sum + task.hours, 0);
+        const completedHours = tasks.reduce(
+          (sum, task) => sum + (task.done ? task.hours : 0),
+          0
+        );
+        const progress = totalHours > 0
+          ? Math.round(100 * completedHours / totalHours)
+          : 0;
+
+        return { totalHours, completedHours, progress };
+      }
+
+      function getVisibleTasks() {
+        if (currentFilter === "active") {
+          return tasks.filter(task => !task.done);
+        }
+        if (currentFilter === "completed") {
+          return tasks.filter(task => task.done);
+        }
+        return tasks;
+      }
+
+      function renderStats() {
+        const { totalHours, completedHours, progress } = getTotals();
+
+        totalHoursElement.textContent = formatHours(totalHours) + " ч";
+        completedHoursElement.textContent = formatHours(completedHours) + " ч";
+        progressValueElement.textContent = progress + "%";
+        progressFill.style.width = progress + "%";
+        progressTrack.setAttribute("aria-valuenow", String(progress));
+      }
+
+      function createTaskElement(task) {
+        const article = document.createElement("article");
+        article.className = "task";
+
+        const checkbox = document.createElement("input");
+        checkbox.className = "task-check";
+        checkbox.type = "checkbox";
+        checkbox.checked = task.done;
+        checkbox.id = "task-check-" + String(task.id);
+        checkbox.setAttribute("aria-label", "Отметить задачу «" + task.title + "» выполненной");
+        checkbox.addEventListener("change", () => {
+          tasks = tasks.map(item =>
+            item.id === task.id ? { ...item, done: checkbox.checked } : item
+          );
+          saveTasks();
+          render();
+        });
+
+        const content = document.createElement("div");
+        content.className = "task-main";
+
+        const title = document.createElement("label");
+        title.className = "task-title" + (task.done ? " is-done" : "");
+        title.htmlFor = checkbox.id;
+        title.textContent = task.title;
+
+        const hours = document.createElement("span");
+        hours.className = "task-hours";
+        hours.textContent = formatHours(task.hours) + " ч";
+
+        content.append(title, hours);
+
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "delete-button";
+        deleteButton.type = "button";
+        deleteButton.textContent = "Удалить";
+        deleteButton.setAttribute("aria-label", "Удалить задачу «" + task.title + "»");
+        deleteButton.addEventListener("click", () => {
+          tasks = tasks.filter(item => item.id !== task.id);
+          saveTasks();
+          render();
+        });
+
+        article.append(checkbox, content, deleteButton);
+        return article;
+      }
+
+      function renderTasks() {
+        taskList.replaceChildren();
+        const visibleTasks = getVisibleTasks();
+
+        if (visibleTasks.length === 0) {
+          const empty = document.createElement("p");
+          empty.className = "empty-state";
+          empty.textContent = tasks.length === 0
+            ? "Пока нет задач. Добавьте первую задачу выше."
+            : "В этом фильтре пока нет задач.";
+          taskList.append(empty);
+          return;
+        }
+
+        visibleTasks.forEach(task => taskList.append(createTaskElement(task)));
+      }
+
+      function renderFilters() {
+        filterButtons.forEach(button => {
+          button.setAttribute(
+            "aria-pressed",
+            String(button.dataset.filter === currentFilter)
+          );
+        });
+      }
+
+      function render() {
+        renderStats();
+        renderTasks();
+        renderFilters();
+      }
+
+      function clearErrors() {
+        titleError.textContent = "";
+        hoursError.textContent = "";
+        titleInput.removeAttribute("aria-invalid");
+        hoursInput.removeAttribute("aria-invalid");
+      }
+
+      function validateForm() {
+        clearErrors();
+
+        const title = titleInput.value.trim();
+        const rawHours = hoursInput.value;
+        const errors = {};
+
+        if (title.length === 0) {
+          errors.title = "Введите название задачи.";
+        }
+
+        if (rawHours.trim() === "") {
+          errors.hours = "Укажите количество часов.";
+        } else {
+          const hours = Number(rawHours);
+
+          if (!Number.isFinite(hours)) {
+            errors.hours = "Введите корректное число.";
+          } else if (hours < 0.5 || hours > 24) {
+            errors.hours = "Введите значение от 0,5 до 24 часов.";
+          } else if (!Number.isInteger(hours * 2)) {
+            errors.hours = "Шаг должен составлять 0,5 часа.";
+          }
+        }
+
+        if (errors.title) {
+          titleError.textContent = errors.title;
+          titleInput.setAttribute("aria-invalid", "true");
+        }
+
+        if (errors.hours) {
+          hoursError.textContent = errors.hours;
+          hoursInput.setAttribute("aria-invalid", "true");
+        }
+
+        return {
+          valid: Object.keys(errors).length === 0,
+          title,
+          hours: Number(rawHours)
+        };
+      }
+
+      function createId() {
+        const numericIds = tasks
+          .map(task => Number(task.id))
+          .filter(Number.isSafeInteger);
+        return Math.max(0, ...numericIds) + 1;
+      }
+
+      form.addEventListener("submit", event => {
+        event.preventDefault();
+        const result = validateForm();
+
+        if (!result.valid) return;
+
+        tasks.push({
+          id: createId(),
+          title: result.title,
+          hours: result.hours,
+          done: false
+        });
+
+        saveTasks();
+        form.reset();
+        clearErrors();
+        render();
+        titleInput.focus();
+      });
+
+      titleInput.addEventListener("input", () => {
+        if (titleError.textContent) {
+          titleError.textContent = "";
+          titleInput.removeAttribute("aria-invalid");
+        }
+      });
+
+      hoursInput.addEventListener("input", () => {
+        if (hoursError.textContent) {
+          hoursError.textContent = "";
+          hoursInput.removeAttribute("aria-invalid");
+        }
+      });
+
+      filterButtons.forEach(button => {
+        button.addEventListener("click", () => {
+          currentFilter = button.dataset.filter;
+          render();
+        });
+      });
+
+      loadTasks();
+      render();
+    })();
+  </script>
+</body>
+</html>

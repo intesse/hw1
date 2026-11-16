@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Мой учебный трекер</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 35px 18px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                 Arial, sans-serif;
+    background: #f3f5fa;
+    color: #26334a;
+}
+
+.container {
+    max-width: 760px;
+    margin: auto;
+}
+
+header {
+    margin-bottom: 25px;
+}
+
+h1 {
+    font-size: 30px;
+    margin: 0 0 8px;
+}
+
+.subtitle {
+    color: #7d8799;
+    font-size: 14px;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+.stat {
+    background: white;
+    padding: 19px;
+    border-radius: 14px;
+    box-shadow: 0 3px 12px rgba(30,50,90,.04);
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #8993a5;
+    margin-bottom: 9px;
+}
+
+.stat-value {
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.progress-card,
+.add-card,
+.task-card {
+    background: white;
+    padding: 22px;
+    border-radius: 14px;
+    margin-bottom: 17px;
+    box-shadow: 0 3px 12px rgba(30,50,90,.04);
+}
+
+.progress-heading {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+.progress-track {
+    height: 10px;
+    background: #edf0f6;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background: #647ce5;
+    border-radius: 20px;
+    transition: width .3s;
+}
+
+.add-form {
+    display: grid;
+    grid-template-columns: 1fr 110px auto;
+    gap: 10px;
+}
+
+input {
+    min-width: 0;
+    padding: 12px 14px;
+    border: 1px solid #e1e5ee;
+    border-radius: 9px;
+    font-size: 14px;
+    outline: none;
+}
+
+input:focus {
+    border-color: #647ce5;
+}
+
+button {
+    border: none;
+    border-radius: 9px;
+    padding: 12px 17px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: .2s;
+}
+
+.add-button {
+    background: #647ce5;
+    color: white;
+}
+
+.add-button:hover {
+    background: #5068d0;
+}
+
+.filters {
+    display: flex;
+    gap: 8px;
+    margin: 22px 0 15px;
+    flex-wrap: wrap;
+}
+
+.filter {
+    background: white;
+    color: #758097;
+    border: 1px solid #e4e8f0;
+}
+
+.filter.active {
+    background: #647ce5;
+    color: white;
+    border-color: #647ce5;
+}
+
+.task {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 16px;
+    background: white;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 9px rgba(30,50,90,.04);
+}
+
+.task-checkbox {
+    width: 19px;
+    height: 19px;
+    accent-color: #647ce5;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.task-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.task-name {
+    font-size: 15px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.task-hours {
+    font-size: 12px;
+    color: #929bad;
+    margin-top: 5px;
+}
+
+.task.done .task-name {
+    text-decoration: line-through;
+    color: #a3aaba;
+}
+
+.status {
+    font-size: 11px;
+    padding: 5px 9px;
+    border-radius: 20px;
+    background: #fff3df;
+    color: #c18a36;
+    white-space: nowrap;
+}
+
+.task.done .status {
+    background: #e6f7ee;
+    color: #36966a;
+}
+
+.delete-button {
+    background: transparent;
+    color: #a6afbd;
+    padding: 7px;
+    font-size: 18px;
+}
+
+.delete-button:hover {
+    color: #e05b65;
+}
+
+.empty {
+    text-align: center;
+    padding: 30px;
+    color: #9ba4b3;
+    background: white;
+    border-radius: 12px;
+}
+
+footer {
+    text-align: center;
+    font-size: 12px;
+    color: #a2aaba;
+    margin-top: 25px;
+}
+
+@media (max-width: 550px) {
+    .stats {
+        grid-template-columns: 1fr;
+    }
+
+    .add-form {
+        grid-template-columns: 1fr 90px;
+    }
+
+    .add-button {
+        grid-column: 1 / -1;
+    }
+
+    h1 {
+        font-size: 25px;
+    }
+
+    .progress-card,
+    .add-card {
+        padding: 17px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <header>
+        <h1>📚 Мой учебный трекер</h1>
+        <div class="subtitle">
+            Планируй обучение и отслеживай свой прогресс
+        </div>
+    </header>
+
+    <section class="stats">
+        <div class="stat">
+            <div class="stat-label">Всего часов</div>
+            <div class="stat-value" id="totalHours">8 ч</div>
+        </div>
+
+        <div class="stat">
+            <div class="stat-label">Выполнено задач</div>
+            <div class="stat-value" id="completedTasks">1 / 3</div>
+        </div>
+
+        <div class="stat">
+            <div class="stat-label">Осталось часов</div>
+            <div class="stat-value" id="remainingHours">6 ч</div>
+        </div>
+    </section>
+
+    <section class="progress-card">
+        <div class="progress-heading">
+            <span>Общий прогресс</span>
+            <span id="progressPercent">33%</span>
+        </div>
+
+        <div class="progress-track">
+            <div class="progress-fill" id="progressBar"></div>
+        </div>
+    </section>
+
+    <section class="add-card">
+        <h3 style="margin-top:0">Добавить задачу</h3>
+
+        <form class="add-form" id="taskForm">
+            <input
+                type="text"
+                id="taskName"
+                placeholder="Название задачи"
+                required
+            >
+
+            <input
+                type="number"
+                id="taskHours"
+                placeholder="Часы"
+                min="0.1"
+                step="0.1"
+                required
+            >
+
+            <button class="add-button" type="submit">
+                + Добавить
+            </button>
+        </form>
+    </section>
+
+    <div class="filters">
+        <button class="filter active" data-filter="all">
+            Все
+        </button>
+
+        <button class="filter" data-filter="active">
+            Активные
+        </button>
+
+        <button class="filter" data-filter="done">
+            Готовые
+        </button>
+    </div>
+
+    <section id="taskList"></section>
+
+    <footer>
+        Твои знания — твой главный результат ✨
+    </footer>
+
+</div>
+
+<script>
+const initialTasks = [
+    { id: 1, name: "Чтение", hours: 2, done: true },
+    { id: 2, name: "Практика", hours: 4, done: false },
+    { id: 3, name: "Повторение", hours: 2, done: false }
+];
+
+let tasks;
+
+try {
+    const saved = localStorage.getItem("studyTasks");
+    tasks = saved !== null ? JSON.parse(saved) : initialTasks;
+
+    if (!Array.isArray(tasks)) {
+        tasks = initialTasks;
+    }
+} catch (error) {
+    tasks = initialTasks;
+}
+
+let currentFilter = "all";
+
+const taskList = document.getElementById("taskList");
+const taskForm = document.getElementById("taskForm");
+
+function saveTasks() {
+    localStorage.setItem("studyTasks", JSON.stringify(tasks));
+}
+
+function updateStats() {
+    const totalHours = tasks.reduce(
+        (sum, task) => sum + Number(task.hours), 0
+    );
+
+    const completed = tasks.filter(task => task.done);
+
+    const completedHours = completed.reduce(
+        (sum, task) => sum + Number(task.hours), 0
+    );
+
+    const remainingHours = totalHours - completedHours;
+
+    const percent = tasks.length
+        ? Math.round(completed.length / tasks.length * 100)
+        : 0;
+
+    document.getElementById("totalHours").textContent =
+        totalHours + " ч";
+
+    document.getElementById("completedTasks").textContent =
+        completed.length + " / " + tasks.length;
+
+    document.getElementById("remainingHours").textContent =
+        remainingHours + " ч";
+
+    document.getElementById("progressPercent").textContent =
+        percent + "%";
+
+    document.getElementById("progressBar").style.width =
+        percent + "%";
+}
+
+function renderTasks() {
+    taskList.innerHTML = "";
+
+    const filteredTasks = tasks.filter(task => {
+        if (currentFilter === "active") return !task.done;
+        if (currentFilter === "done") return task.done;
+        return true;
+    });
+
+    if (filteredTasks.length === 0) {
+        taskList.innerHTML =
+            '<div class="empty">Задач пока нет</div>';
+        return;
+    }
+
+    filteredTasks.forEach(task => {
+        const element = document.createElement("div");
+        element.className = "task" + (task.done ? " done" : "");
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.className = "task-checkbox";
+        checkbox.checked = task.done;
+        checkbox.setAttribute("aria-label", "Отметить выполнение");
+
+        checkbox.addEventListener("change", () => {
+            task.done = checkbox.checked;
+            saveTasks();
+            render();
+        });
+
+        const info = document.createElement("div");
+        info.className = "task-info";
+
+        const name = document.createElement("div");
+        name.className = "task-name";
+        name.textContent = task.name;
+
+        const hours = document.createElement("div");
+        hours.className = "task-hours";
+        hours.textContent = task.hours + " ч";
+
+        info.append(name, hours);
+
+        const status = document.createElement("span");
+        status.className = "status";
+        status.textContent = task.done ? "Готово" : "Активна";
+
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "delete-button";
+        deleteButton.textContent = "×";
+        deleteButton.title = "Удалить задачу";
+        deleteButton.setAttribute("aria-label", "Удалить задачу");
+
+        deleteButton.addEventListener("click", () => {
+            tasks = tasks.filter(item => item.id !== task.id);
+            saveTasks();
+            render();
+        });
+
+        element.append(checkbox, info, status, deleteButton);
+        taskList.appendChild(element);
+    });
+}
+
+function render() {
+    updateStats();
+    renderTasks();
+}
+
+taskForm.addEventListener("submit", event => {
+    event.preventDefault();
+
+    const nameInput = document.getElementById("taskName");
+    const hoursInput = document.getElementById("taskHours");
+
+    const name = nameInput.value.trim();
+    const hours = Number(hoursInput.value);
+
+    if (!name || !Number.isFinite(hours) || hours <= 0) {
+        return;
+    }
+
+    tasks.push({
+        id: Date.now(),
+        name: name,
+        hours: hours,
+        done: false
+    });
+
+    saveTasks();
+    taskForm.reset();
+    render();
+    nameInput.focus();
+});
+
+document.querySelectorAll(".filter").forEach(button => {
+    button.addEventListener("click", () => {
+        currentFilter = button.dataset.filter;
+
+        document.querySelectorAll(".filter").forEach(item => {
+            item.classList.toggle("active", item === button);
+        });
+
+        renderTasks();
+    });
+});
+
+render();
+</script>
+
+</body>
+</html>
