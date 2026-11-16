@@ -3,9 +3,11 @@
 Мини-трекер учебных задач: сравнение **прямого задания** и **spec-driven** подхода (документы OpenSpec в чате, без CLI).
 
 ## Запуск
-1. Скачайте или откройте локально `tracker-v1.html` и `tracker-v2.html`.
-2. Откройте файл двойным кликом в браузере (Chrome / Safari / Firefox).
-3. GitHub Pages не обязателен.
+1. Откройте локально `tracker-v1.html` / `tracker-v2.html` двойным кликом в браузере.
+2. Или GitHub Pages:
+   - https://intesse.github.io/hw1/tracker-v1.html
+   - https://intesse.github.io/hw1/tracker-v2.html
+3. Перед проверками T1–T5 очистите localStorage соответствующей версии и обновите страницу.
 
 ## Модель
 GPT-6 (OpenAI). Обе попытки — одна и та же модель.
